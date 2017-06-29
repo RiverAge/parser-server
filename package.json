@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "parser": "^0.1.4"
+  },
   "devDependencies": {
     "@types/node": "^8.0.5",
+    "@types/parse": "^1.9.3",
     "tslint": "^5.4.3",
     "typescript": "^2.4.1"
   },
