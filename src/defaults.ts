@@ -24,15 +24,15 @@ export default {
     verbose,
     level,
     silent: false,
-    enableAnymouseUsers: true,
+    enableAnonymousUsers: true,
     allowClientClassCreation: true,
     maxUploadSize: '20mb',
     verifyUserEmails: false,
-    preventLoginWithUnverifyedEmail: false,
+    preventLoginWithUnverifiedEmail: false,
     sessionLength: 31536000,
-    expireInactiveSessons: true,
+    expireInactiveSessions: true,
     revokeSessionOnPasswordReset: true,
     schemaCacheTTL: 5000, // in ms
-    userSensitiveFileds: ['email'],
+    userSensitiveFields: ['email'],
     objectIdSize: 10
 }
