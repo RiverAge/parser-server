@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
+    "@types/node": "^8.0.5",
     "tslint": "^5.4.3",
     "typescript": "^2.4.1"
   },
