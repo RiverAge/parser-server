@@ -47,14 +47,14 @@ export const moduleOrObjectParaser = (opt: object) => {
     }
 }
 
-const booleanParaser = (opt: boolean | string) => {
+export const booleanParaser = (opt: boolean | string) => {
     if (opt === true || opt === 'true' || opt === '1') {
         return true
     }
     return false
 }
 
-const nullParser = (opt: string) => {
+export const nullParser = (opt: string) => {
     if (opt === 'null') {
         return undefined
     }
