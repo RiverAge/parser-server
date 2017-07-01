@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "parser": "^0.1.4"
+    "parser": "^0.1.4",
+    "pg-promise": "^6.2.3"
   },
   "devDependencies": {
     "@types/node": "^8.0.5",
