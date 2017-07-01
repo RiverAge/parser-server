@@ -1,16 +1,16 @@
 import * as URL from 'url'
 
 export interface DatabaseOptions {
-    host: string,
-    port: number,
+    host?: string,
+    port?: number,
     database?: string,
-    user: string,
-    password: string,
-    ssl: boolean,
-    binary: boolean,
-    client_encoding: string,
-    application_name: string,
-    fallback_application_name: string,
+    user?: string,
+    password?: string,
+    ssl?: boolean,
+    binary?: boolean,
+    client_encoding?: string,
+    application_name?: string,
+    fallback_application_name?: string,
     poolSize?: number
 }
 
