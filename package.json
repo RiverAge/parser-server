@@ -12,8 +12,11 @@
     "@types/lodash": "^4.14.68",
     "@types/node": "^8.0.5",
     "@types/parse": "^1.9.3",
+    "@types/winston": "^2.3.3",
     "tslint": "^5.4.3",
-    "typescript": "^2.4.1"
+    "typescript": "^2.4.1",
+    "winston": "^2.3.1",
+    "winston-daily-rotate-file": "^1.4.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
