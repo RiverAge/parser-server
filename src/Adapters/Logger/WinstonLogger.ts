@@ -6,18 +6,18 @@ import * as _ from 'lodash'
 import defaults from '../../defaults'
 
 const logger = new winston.Logger()
-const additionalTransports: Array<TransportOptions> = []
+const additionalTransports: Array<winston.DailyRotateFileTransportOptions> = []
 
-interface TransportOptions {
-    name?: string,
-    silent: boolean,
-    dirname?: string,
-    level?: string,
-    json?: boolean,
-    stringify?: boolean
-}
+// export interface TransportOptions extends winston.DailyRotateFileTransportOptions {
+    // name?: string,
+    // silent: boolean,
+    // dirname?: string,
+    // level?: string,
+    // json?: boolean,
+    // stringify?: boolean
+// }
 
-const updateTransports = (options?: TransportOptions) => {
+const updateTransports = (options?: winston.DailyRotateFileTransportOptions) => {
     const transports = Object.assign({}, logger.transports)
     if (options) {
         const silent = options.silent
@@ -46,9 +46,11 @@ const updateTransports = (options?: TransportOptions) => {
         }))
     }
 
-    additionalTransports.forEach((e) => {
-        transports[e.name] = e
-    })
+    // additionalTransports.forEach((e) => {
+    //     if (e.name) {
+    //         transports[e.name] = e
+    //     }
+    // })
 
     logger.configure({transports: _.values(transports)} as winston.LoggerOptions)
 }
@@ -82,28 +84,30 @@ export function configureLogger({
         fs.mkdirSync(logsFolder)
     }
 
-    const options: TransportOptions = {
+    const options: winston.DailyRotateFileTransportOptions = {
         dirname: logsFolder,
         level: logLevel,
         silent: silent
     }
 
     if (jsonLogs) {
-        options.json = true,
-        options.stringify = true
+        options.json = true
+        // options.stringify = true
     }
     updateTransports(options)
 }
 
-export const addTransport = (transport: TransportOptions) => {
+export const addTransport = (transport: winston.DailyRotateFileTransportOptions) => {
     additionalTransports.push(transport)
     updateTransports()
 }
 
-export const removeTransport = (transport: string | TransportOptions) => {
+export const removeTransport = (transport: string | winston.DailyRotateFileTransportOptions) => {
     const transportName =  typeof transport === 'string' ? transport : transport.name
     const transports = Object.assign({}, logger.transports)
-    delete transports[transportName]
+    if (transportName) {
+        delete transports[transportName]
+    }
     logger.configure({
         transports: _.values(transports)
     } as winston.LoggerOptions)
@@ -112,4 +116,4 @@ export const removeTransport = (transport: string | TransportOptions) => {
     })
 }
 
-export default logger
+export { logger }
