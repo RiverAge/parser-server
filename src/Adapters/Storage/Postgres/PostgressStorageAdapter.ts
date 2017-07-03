@@ -1,0 +1,12 @@
+import { createClient } from './PostgresClient'
+import Parse from 'parse/node'
+import _ from 'lodash'
+import sql from './sql'
+import { logger } from '../../../logger'
+
+const POSTGRES_RELATION_DOES_NOT_EXIST_ERROR = '42P01'
+const POSTGRES_DUPLICATE_RELATION_ERROR = '42P07'
+const POSTGRES_DUPLICATE_COLUMN_ERROR = '42701'
+const POSTGRES_DUPLICATE_OBJECT_ERROR = '42710'
+const POSTGRES_UNIQUE_INDEX_VIOLATION_ERROR = '23505'
+const POSTGRES_TRANSACTION_ABORTED_ERROR = '25P02'
