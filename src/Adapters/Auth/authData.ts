@@ -10,5 +10,7 @@ export interface ResData {
     user_id: string,
     data: {
         id: string
-    }
+    },
+    result: string,
+    stat: string
 }
