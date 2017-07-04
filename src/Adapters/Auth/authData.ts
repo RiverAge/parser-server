@@ -1,8 +1,11 @@
 export interface AuthData {
-    id: string
+    id: string,
+    id_token: string,
     access_token: string
 }
 
 export interface ResData {
-    id: string
+    id: string,
+    sub: string,
+    user_id: string
 }
