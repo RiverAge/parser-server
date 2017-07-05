@@ -9,6 +9,7 @@ export interface AuthData {
 export interface ResData {
     id: string,
     sub: string,
+    openid: string,
     user_id: string,
     data: {
         id: string
