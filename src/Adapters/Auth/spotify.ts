@@ -5,12 +5,12 @@ import * as authData from './authData'
 
 const validateAuthData = (authData: authData.AuthData) => {
     return request('me', authData.access_token)
-    .then((data) => {
-        if (data && data.id === authData.id) {
-            return
-        }
-        throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 'Spotify auth is invalid fro this user.')
-    })
+        .then((data) => {
+            if (data && data.id === authData.id) {
+                return
+            }
+            throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 'Spotify auth is invalid fro this user.')
+        })
 }
 
 // Returns a promise that fulfills if this app id is valid.
@@ -20,12 +20,12 @@ const validateAppId = (appids: string[], authData: authData.AuthData) => {
         throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 'Spotify auth is not configured.')
     }
     return request('me', token)
-    .then((data) => {
-        if (data && appids.indexOf(data.id) !== -1) {
-            return
-        }
-        throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 'Spotify auth is invalid for this user.')
-    })
+        .then((data) => {
+            if (data && appids.indexOf(data.id) !== -1) {
+                return
+            }
+            throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 'Spotify auth is invalid for this user.')
+        })
 }
 
 // a promise wrapper for Spotify api requests
@@ -39,18 +39,17 @@ const request = (path: string, token: string) => {
             }
         }, (res) => {
             let data = ''
-            let ret:authData.ResData
+            let ret: authData.ResData
             res.on('data', (chunk) => {
                 data += chunk
             })
             res.on('end', () => {
                 try {
                     ret = JSON.parse(data)
-                }
-                catch(e) {
+                } catch (e) {
                     return reject(e)
                 }
-                resolve(data)
+                resolve(ret)
             })
         }).on('error', () => {
             reject('Failed to validate this access token with Spotify.')
