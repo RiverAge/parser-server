@@ -5,7 +5,7 @@ import * as queryString from 'querystring'
 import * as authData from './authData'
 
 // Returns a promise that fulfills if this user id is valid
-const validateAuthData = (authData: authData.AuthData, options: {jarain_capture_host: string}) => {
+export const validateAuthData = (authData: authData.AuthData, options: {jarain_capture_host: string}) => {
     return request(options.jarain_capture_host, authData.access_token)
     .then((data) => {
         // successful response will have a 'stat (status) of 'ok and a result note that stores the uuid, because that's all we asked for
@@ -18,7 +18,7 @@ const validateAuthData = (authData: authData.AuthData, options: {jarain_capture_
 }
 
 // Returns a promise that fulfills if this app is valid.
-const validateAppId = () => {
+export const validateAppId = () => {
     // no-op
     return Promise.resolve()
 }

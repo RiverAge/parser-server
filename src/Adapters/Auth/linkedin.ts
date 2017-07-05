@@ -4,7 +4,7 @@ import * as Parse from 'parse/node'
 import * as authData from './authData'
 
 // Returns a promise that fulfills if this user id is valid.
-const validateAuthData = (authData: authData.AuthData) => {
+export const validateAuthData = (authData: authData.AuthData) => {
     return request('people/~:(id)', authData.access_token, authData.is_mobile_sdk)
         .then((data) => {
             if (data && data.id === authData.id) {
@@ -15,7 +15,7 @@ const validateAuthData = (authData: authData.AuthData) => {
 }
 
 // Returns a promise that fulfills if this app is valid
-const validateAppId = () => {
+export const validateAppId = () => {
     return Promise.resolve()
 }
 
