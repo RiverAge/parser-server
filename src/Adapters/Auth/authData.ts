@@ -19,5 +19,6 @@ export interface ResData {
         identifier: string
     },
     result: string,
-    stat: string
+    stat: string,
+    errcode: number
 }

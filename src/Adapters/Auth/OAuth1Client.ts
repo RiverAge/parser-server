@@ -2,14 +2,6 @@ import * as https from 'https'
 import * as crypto from 'crypto'
 import * as Parse from 'parse/node'
 
-interface Request {
-    host: string
-    method: 'POST' | 'GET'
-    path: string,
-    params: object,
-    body: object
-}
-
 interface OAuthParams {
     oauth_nonce?: string
     oauth_timestamp?: number
@@ -46,11 +38,37 @@ class OAuth {
         this.oauthParams = options.oauth_params || {}
     }
 
-    send(method: string, path: string, body: string) {
-
+    send(method: string, path: string, params: {}, body?: string) {
+        const request = this.buildRequest(method, path, params, body)
+        // Encode the body properly, the current Parse Implementation don't do it properly
+        return new Promise((resolve, reject) => {
+            const httpRequest = https.get(request, (res) => {
+                let data = ''
+                res.on('data', (chunk) => {
+                    data += chunk
+                })
+                res.on('end', () => {
+                    data = JSON.parse(data)
+                })
+            }).on('error', () => {
+                reject('Failed to make an OAuth request')
+            })
+            if (request.body) {
+                httpRequest.write(request.body)
+            }
+            httpRequest.end()
+        })
     }
 
-    buildRequest(method: string, path: string, params: { [props: string]: string }, body: string) {
+    get(path: string, params: {}) {
+        return this.send('GET', path, params)
+    }
+
+    post(path: string, params: {}, body) {
+        return this.send('POST', path, params, body)
+    }
+
+    buildRequest(method: 'POST' | 'GET', path: string, params: Map<string, string>, body: string) {
         if (path.indexOf('/') !== 0) {
             path = '/' + path
         }
@@ -58,11 +76,12 @@ class OAuth {
             path += '?' + this.buildParameterString(params)
         }
 
-        const request = {
+        const request: https.RequestOptions = {
             host: this.host,
             path: path,
-            method: method.toUpperCase()
+            method: method
         }
+
 
         const oauthParams = this.oauthParams
         oauthParams.oauth_consumer_key = this.consumerKey
@@ -70,40 +89,25 @@ class OAuth {
             oauthParams['oauth_token'] = this.authToken
         }
 
-        request = this.
+        request = this.signRequest(request, oauthParams, this.consumerKey, this.authToken)
+
+        if (body && Object.keys(body).length > 0) {
+            request.body = this.buildParameterString(body)
+        }
+        return request
     }
 
-    private buildParameterString(obj: { [props: string]: string }) {
-        // Sort key and encode values
-        if (obj) {
-            const keys = Object.keys(obj).sort()
-            return keys.map((key) => {
-                return key + '=' + this.encode(obj[key])
-            }).join('&')
-        }
-        return ''
-    }
 
-    private encode(str: string) {
-        str = (str + '').toString()
-        return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A')
-    }
 
-    private signRequest(request: Request, oauthParameters: OAuthParams , consumerSecret: string, authTokenSecret = '') {
-
-        // Set default value
-        if (!oauthParameters.oauth_nonce) {
-            oauthParameters.oauth_nonce = this.nonce()
-        }
-        if (!oauthParameters.oauth_timestamp) {
-            oauthParameters.oauth_timestamp = Math.floor(new Date().getTime() / 1000)
-        }
-        if (!oauthParameters.oauth_signature_method) {
-            oauthParameters.oauth_signature_method = this.signatureMethod
-        }
-        if (!oauthParameters.oauth_version) {
-            oauthParameters.oauth_version = this.version
-        }
+    private signRequest(request: https.RequestOptions,
+        {
+         oauth_nonce = this.nonce(),
+            oauth_timestamp = Math.floor(new Date().getTime() / 1000),
+            oauth_signature_method = this.signatureMethod,
+            oauth_version = this.version
+     }: OAuthParams,
+        consumerSecret: string,
+        authTokenSecret = '') {
 
         // Force Get Method if unset
         if (!request.method) {
@@ -147,6 +151,19 @@ class OAuth {
         // Set the content type header
         request.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         return request
+    }
+
+    private buildParameterString(obj: Map<string, string>) {
+        // Sort key and encode values
+        const keys = Object.keys(obj).sort()
+        return keys.map((key) => {
+            return key + '=' + this.encode(obj[key])
+        }).join('&')
+    }
+
+    private encode(str: string) {
+        str = (str + '').toString()
+        return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A')
     }
 
     private nonce() {
