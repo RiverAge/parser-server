@@ -6,8 +6,11 @@ interface OAuthParams {
     oauth_nonce?: string
     oauth_timestamp?: number
     oauth_signature_method?: string
-    oauth_version?: string,
-    oauth_signature: string
+    oauth_version?: string
+    oauth_signature?: string
+    oauth_consumer_key?: string
+    oauth_token?: string
+    [propsName: string]: any
 }
 
 class OAuth {
@@ -17,7 +20,7 @@ class OAuth {
     private authToken: string
     private authTokenSecret: string
     private host: string
-    private oauthParams: object
+    private oauthParams: OAuthParams
 
     private readonly signatureMethod = 'HMAC-SHA1'
     private readonly version = '1.0'
@@ -28,7 +31,7 @@ class OAuth {
         auth_token: string,
         auth_token_secret: string
         host: string,
-        oauth_params?: string
+        oauth_params?: OAuthParams
     }) {
         this.consumerKey = options.consumer_key
         this.consumerSecret = options.consumer_secret
@@ -38,8 +41,8 @@ class OAuth {
         this.oauthParams = options.oauth_params || {}
     }
 
-    send(method: string, path: string, params: {}, body?: string) {
-        const request = this.buildRequest(method, path, params, body)
+    send(method: string, path: string, params: {}, body?: {}) {
+        const request = this.buildRequest(method, path, params)
         // Encode the body properly, the current Parse Implementation don't do it properly
         return new Promise((resolve, reject) => {
             const httpRequest = https.get(request, (res) => {
@@ -53,22 +56,22 @@ class OAuth {
             }).on('error', () => {
                 reject('Failed to make an OAuth request')
             })
-            if (request.body) {
-                httpRequest.write(request.body)
+            if (body && Object.keys(body).length > 0) {
+                httpRequest.write(this.buildParameterString(body))
             }
             httpRequest.end()
         })
     }
 
-    get(path: string, params: {}) {
+    get(path: string, params: Map<string, string>) {
         return this.send('GET', path, params)
     }
 
-    post(path: string, params: {}, body) {
+    post(path: string, params: {}, body: Map<string, string>) {
         return this.send('POST', path, params, body)
     }
 
-    buildRequest(method: 'POST' | 'GET', path: string, params: Map<string, string>, body: string) {
+    buildRequest(method: string, path: string, params: {}) {
         if (path.indexOf('/') !== 0) {
             path = '/' + path
         }
@@ -82,22 +85,14 @@ class OAuth {
             method: method
         }
 
-
         const oauthParams = this.oauthParams
         oauthParams.oauth_consumer_key = this.consumerKey
         if (this.authToken) {
-            oauthParams['oauth_token'] = this.authToken
+            oauthParams.oauth_token = this.authToken
         }
 
-        request = this.signRequest(request, oauthParams, this.consumerKey, this.authToken)
-
-        if (body && Object.keys(body).length > 0) {
-            request.body = this.buildParameterString(body)
-        }
-        return request
+        return this.signRequest(request, oauthParams, this.consumerKey, this.authToken)
     }
-
-
 
     private signRequest(request: https.RequestOptions,
         {
@@ -114,10 +109,15 @@ class OAuth {
             request.method = 'GET'
         }
 
+        const oauthParameters: OAuthParams = {
+            oauth_nonce,
+            oauth_timestamp,
+            oauth_signature_method,
+            oauth_version
+        }
+
         // Collect all the parameters in on signature Parameters object
         const signatureParam = {
-            ...request.params,
-            ...request.body,
             ...oauthParameters
         }
 
@@ -131,17 +131,15 @@ class OAuth {
         // Has the signature string
         const signatureKey = [this.encode(consumerSecret), this.encode(authTokenSecret)].join('&')
 
-        const signature = this.signature(signatureString, signatureKey)
-
         // Set the signature in the params
-        oauthParameters.oauth_signature = signature
+        oauthParameters.oauth_signature =  this.signature(signatureString, signatureKey)
 
         if (!request.headers) {
             request.headers = {}
         }
 
         // Set the authorization header
-        const authHeader = Object.keys(oauthParameters).sort().map((e) => {
+        const authHeader = Object.keys(oauthParameters).sort().map((key) => {
             const value = oauthParameters[key]
             return key + '="' + value + '"'
         }).join(', ')
@@ -153,15 +151,17 @@ class OAuth {
         return request
     }
 
-    private buildParameterString(obj: Map<string, string>) {
+    private buildParameterString(obj: {[prop: string]: string}) {
         // Sort key and encode values
         const keys = Object.keys(obj).sort()
+
         return keys.map((key) => {
             return key + '=' + this.encode(obj[key])
         }).join('&')
     }
 
-    private encode(str: string) {
+    private encode(str?: string) {
+        if (!str) return ''
         str = (str + '').toString()
         return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A')
     }
@@ -176,7 +176,7 @@ class OAuth {
         return text
     }
 
-    private buildSignatureString(method: 'POST' | 'GET', url: string, parameters: string) {
+    private buildSignatureString(method: string, url: string, parameters: string) {
         return [method, this.encode(url), this.encode(parameters)].join('&')
     }
 
