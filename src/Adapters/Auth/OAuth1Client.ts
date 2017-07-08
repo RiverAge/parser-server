@@ -1,6 +1,7 @@
 import * as https from 'https'
 import * as crypto from 'crypto'
 import * as Parse from 'parse/node'
+import * as authData from './authData'
 
 interface OAuthParams {
     oauth_nonce?: string
@@ -13,13 +14,13 @@ interface OAuthParams {
     [propsName: string]: any
 }
 
-class OAuth {
+export default class OAuth {
 
     private consumerKey: string
     private consumerSecret: string
-    private authToken: string
-    private authTokenSecret: string
-    private host: string
+    public authToken: string
+    public authTokenSecret: string
+    public host: string
     private oauthParams: OAuthParams
 
     private readonly signatureMethod = 'HMAC-SHA1'
@@ -44,14 +45,16 @@ class OAuth {
     send(method: string, path: string, params: {}, body?: {}) {
         const request = this.buildRequest(method, path, params)
         // Encode the body properly, the current Parse Implementation don't do it properly
-        return new Promise((resolve, reject) => {
+        return new Promise<authData.AuthData>((resolve, reject) => {
             const httpRequest = https.get(request, (res) => {
                 let data = ''
+                let ret: authData.AuthData
                 res.on('data', (chunk) => {
                     data += chunk
                 })
                 res.on('end', () => {
-                    data = JSON.parse(data)
+                    ret = JSON.parse(data)
+                    resolve(ret)
                 })
             }).on('error', () => {
                 reject('Failed to make an OAuth request')
