@@ -13,7 +13,7 @@ const unsubscribe = (channel: string) => {
 }
 
 class Publisher {
-    private emitter: events.EventEmitter 
+    private emitter: events.EventEmitter
 
     constructor(e: events.EventEmitter) {
         this.emitter = e
