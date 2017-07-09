@@ -19,3 +19,5 @@ class AnalyticsAdapter {
     }
 
 }
+
+export default AnalyticsAdapter
