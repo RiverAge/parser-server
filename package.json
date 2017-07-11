@@ -4,14 +4,20 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "lodash": "^4.17.4",
+    "mongodb": "^2.2.30",
     "parser": "^0.1.4",
-    "pg-promise": "^6.2.3"
+    "pg-promise": "^6.2.3",
+    "redis": "^2.7.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.0",
     "@types/lodash": "^4.14.68",
+    "@types/mongodb": "^2.2.7",
     "@types/node": "^8.0.5",
     "@types/parse": "^1.9.3",
+    "@types/redis": "^2.6.0",
     "@types/winston": "^2.3.3",
     "tslint": "^5.4.3",
     "typescript": "^2.4.1",
