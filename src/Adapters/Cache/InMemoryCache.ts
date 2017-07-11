@@ -17,7 +17,7 @@ export class InMemoryCache {
         this.cache = Object.create(null)
     }
 
-    get(key: string): string | null {
+    get(key: string): any {
         const record: Record = this.cache[key]
         if (record === null || record === undefined) {
             return null
