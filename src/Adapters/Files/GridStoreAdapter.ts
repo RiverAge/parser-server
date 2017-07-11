@@ -51,7 +51,11 @@ class GridStoreAdapter implements FilesAdapter {
     }
 
     getFileLocation(config, filename: string) {
-        return (config.mount + '/files/' + config.applicationId + '/' + encodeURIComponent(filename))
+        return (config.mount
+            + '/files/'
+            + config.applicationId
+            + '/'
+            + encodeURIComponent(filename))
     }
 
     getFileStream(filename: string) {
