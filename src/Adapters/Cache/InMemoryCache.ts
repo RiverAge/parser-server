@@ -1,6 +1,6 @@
 const DEFAULT_CACHE_TTL = 5 * 1000
 
-interface Record  {
+interface Record {
     value: any,
     expire: number,
     timeout?: NodeJS.Timer
@@ -17,7 +17,7 @@ export class InMemoryCache {
         this.cache = Object.create(null)
     }
 
-    get(key: string) {
+    get(key: string): string | null {
         const record: Record = this.cache[key]
         if (record === null || record === undefined) {
             return null
@@ -34,12 +34,12 @@ export class InMemoryCache {
         return null
     }
 
-    put(key: string, value: any, ttl = this.ttl) {
+    put(key: string, value: string, ttl = this.ttl) {
         if (ttl < 0 || isNaN(ttl)) {
             ttl = NaN
         }
 
-        const record: Record  = {
+        const record: Record = {
             value: value,
             expire: ttl + Date.now()
         }
@@ -66,7 +66,7 @@ export class InMemoryCache {
         delete this.cache[key]
     }
 
-    clearImmediate() {
+    clear() {
         this.cache = Object.create(null)
     }
 
