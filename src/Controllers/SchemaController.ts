@@ -348,7 +348,20 @@ class SchemaController {
             promise = this._cache.clear()
         }
         return promise.then(() => {
-            if (allowVolatileClasses && volatileClasses.indexOf)
+            if (allowVolatileClasses && volatileClasses.indexOf(className) > -1) {
+                return Promise.resolve({
+                    className,
+                    fields: this.data[className],
+                    classLevelPermission: this.perms[className]
+                })
+            }
+            return this._cache.getOneSchema(className)
+            .then((cached) => {
+                if (cached && !options.clearCache) {
+                    return Promise.resolve(cached)
+                }
+                return this._dbAdapter.getClass
+            })
         })
     }
 }
