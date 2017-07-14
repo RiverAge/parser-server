@@ -1,11 +1,15 @@
 // This class handles the Account Lockout Policy settings.
 import * as Parse from 'parse/node'
 
+interface User {
+    username: string
+}
+
 class AccountLockout {
-    private _user: string
+    private _user: User
     private _config: string
 
-    constructor(user: string, config: string) {
+    constructor(user: User config: string) {
         this._user = user
         this._config = config
     }
@@ -35,7 +39,7 @@ class AccountLockout {
         }
 
         return this._config.database.find('_User', query)
-            .then((users) => {
+            .then((users: User[]) => {
                 if (Array.isArray(users) && users.length > 0) {
                     return true
                 }
