@@ -5,11 +5,19 @@ interface User {
     username: string
 }
 
+interface Config {
+    database: string,
+    accountLockout: {
+        threshold: number,
+        duration: number
+    }
+}
+
 class AccountLockout {
     private _user: User
-    private _config: string
+    private _config: Config
 
-    constructor(user: User config: string) {
+    constructor(user: User, config: Config) {
         this._user = user
         this._config = config
     }
@@ -32,9 +40,9 @@ class AccountLockout {
     /**
      * check if the _failed_login_count field has been set
      */
-    private _isFailedLoginCountSet() {
+    private _isFailedLoginCountSet(): Promise<boolean> {
         const query = {
-            username: this._user.username
+            username: this._user.username,
             _failed_login_count: { $exists: true }
         }
 
@@ -130,13 +138,13 @@ class AccountLockout {
         }
 
         return this._config.database.find('_User', query)
-        .then((users) => {
-            if (Array.isArray(users) && users.length > 0) {
-                throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND, 
-                    'Your account is locked due to multiple failed login attempts. Please try again after' +
-                this._config.accountLockout.duration + ' minute(s)')
-            }
-        })
+            .then((users) => {
+                if (Array.isArray(users) && users.length > 0) {
+                    throw new Parse.Error(Parse.ErrorCode.OBJECT_NOT_FOUND,
+                        'Your account is locked due to multiple failed login attempts. Please try again after' +
+                        this._config.accountLockout.duration + ' minute(s)')
+                }
+            })
     }
 
     /**
@@ -146,27 +154,27 @@ class AccountLockout {
      * do nothing
      */
 
-     private _handleFailedLoginAttempt() {
-         return this._initFailedLoginCount()
-         .then(() => this._incrementFailedLoginCount())
-         .then(() => this._setLockoutExpiration())
-     }
+    private _handleFailedLoginAttempt() {
+        return this._initFailedLoginCount()
+            .then(() => this._incrementFailedLoginCount())
+            .then(() => this._setLockoutExpiration())
+    }
 
-     /**
-      * handle login attempt if the Account Lockout Policy is enabled
-      */
+    /**
+     * handle login attempt if the Account Lockout Policy is enabled
+     */
 
-      public handleLoginAttempt(loginSuccessful) {
+    public handleLoginAttempt(loginSuccessful: boolean) {
         if (!this._config.accountLockout) {
             return Promise.resolve()
         }
         return this._notLocked()
-        .then(() => {
-            if (loginSuccessful) {
-                return this._setFailedLoginCount(0)
-            } else {
-                this._handleFailedLoginAttempt()
-            }
-        })
-      }
+            .then(() => {
+                if (loginSuccessful) {
+                    return this._setFailedLoginCount(0)
+                } else {
+                    this._handleFailedLoginAttempt()
+                }
+            })
+    }
 }
