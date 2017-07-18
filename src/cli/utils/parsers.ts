@@ -36,7 +36,7 @@ export const arrayParser = (opt: Array<any> | string) => {
     }
 }
 
-export const moduleOrObjectParaser = (opt: object) => {
+export const moduleOrObjectParser = (opt: object) => {
     if (typeof opt === 'object') {
         return opt
     }
@@ -47,7 +47,7 @@ export const moduleOrObjectParaser = (opt: object) => {
     }
 }
 
-export const booleanParaser = (opt: boolean | string) => {
+export const booleanParser = (opt: boolean | string) => {
     if (opt === true || opt === 'true' || opt === '1') {
         return true
     }
